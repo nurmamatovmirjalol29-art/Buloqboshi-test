@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin panel — Buloqboshi MFY</title>
+  <link rel="icon" type="image/svg+xml" href="/icons/icon-source.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#faf7f2; --ink:#1e1b16; --ink-soft:#5b5348;
+      --line:#e2d9cb; --brand:#0e5c4a; --brand-soft:#128a6d;
+      --accent:#d97706; --danger:#dc2626; --ok:#16a34a;
+      --cursor-drop: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='32' viewBox='0 0 28 32'%3E%3Cpath d='M14 2C14 2 4 16 4 22a10 10 0 1 0 20 0C24 16 14 2 14 2Z' fill='%230e5c4a' stroke='%23faf7f2' stroke-width='2'/%3E%3C/svg%3E") 14 4, pointer;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;min-height:100vh}
+    .container{max-width:1100px;margin:0 auto;padding:0 24px}
+    h1{font-family:'Fraunces',serif;font-weight:800;font-size:2rem;margin-bottom:8px}
+    .top{padding:40px 0 24px;border-bottom:1px solid var(--line);margin-bottom:32px;display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap}
+    .top p{color:var(--ink-soft);font-size:.9rem}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:'Inter',sans-serif;font-weight:600;font-size:.9rem;padding:10px 20px;border-radius:99px;border:none;cursor:var(--cursor-drop);transition:.25s;position:relative;overflow:hidden;isolation:isolate}
+    .btn--primary{background:var(--brand);color:#fff}
+    .btn--primary:hover{background:var(--brand-soft)}
+    .btn--ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+    .btn--ghost:hover{border-color:var(--ink)}
+    .btn--ok{background:var(--ok);color:#fff}
+    .btn--danger{background:var(--danger);color:#fff}
+    .btn__ripple{position:absolute;border-radius:50%;transform:scale(0);background:rgba(255,255,255,.5);animation:btnRipple .6s cubic-bezier(.2,.8,.2,1) forwards;pointer-events:none}
+    .btn--ghost .btn__ripple{background:rgba(14,92,74,.16)}
+    @keyframes btnRipple{to{transform:scale(1);opacity:0}}
+    @media (prefers-reduced-motion: reduce){.btn__ripple{display:none}}
+
+    /* ============ CHIZIQLI IKONKALAR ============ */
+    .icon{
+      width:1.1em;height:1.1em;
+      display:inline-block;
+      vertical-align:-0.18em;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:1.8;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+      flex-shrink:0;
+    }
+
+    /* ============ CREATIV KURSOR ============ */
+    @media (hover:hover) and (pointer:fine){
+      a, button, input, textarea, label{ cursor:none; }
+    }
+    .cursor-dot,.cursor-ring{
+      position:fixed; top:0; left:0;
+      border-radius:50%;
+      pointer-events:none;
+      z-index:9999;
+      transform:translate(-50%,-50%);
+      will-change:transform;
+    }
+    .cursor-dot{ width:7px;height:7px; background:var(--brand); }
+    .cursor-ring{
+      width:34px;height:34px;
+      border:1.5px solid var(--brand);
+      opacity:.45;
+      transition:width .25s,height .25s,border-color .25s,background .25s,opacity .2s;
+    }
+    .cursor-ring.is-hover{
+      width:54px;height:54px;
+      background:rgba(14,92,74,.08);
+      border-color:var(--brand-soft);
+      opacity:.7;
+    }
+    @media (hover:none),(pointer:coarse){
+      .cursor-dot,.cursor-ring{ display:none; }
+    }
+
+    .login{max-width:420px;margin:80px auto;background:#fff;padding:40px;border-radius:20px;box-shadow:0 20px 50px -20px rgba(0,0,0,.2);border:1px solid var(--line)}
+    .login h1{font-size:1.5rem;margin-bottom:24px;text-align:center}
+    .login input{width:100%;padding:14px 16px;border:1.5px solid var(--line);border-radius:12px;font-family:inherit;font-size:.95rem;margin-bottom:14px}
+    .login input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 4px rgba(14,92,74,.1)}
+    .login .err{color:var(--danger);font-size:.85rem;text-align:center;margin-top:8px;min-height:1.2em}
+
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:32px}
+    .stat{background:#fff;padding:20px;border-radius:16px;border:1px solid var(--line)}
+    .stat strong{font-family:'Fraunces',serif;font-size:2rem;color:var(--brand);display:block;line-height:1}
+    .stat span{font-size:.82rem;color:var(--ink-soft)}
+
+    .tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+    .tab{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:99px;border:1px solid var(--line);background:#fff;font-size:.88rem;cursor:var(--cursor-drop);font-family:inherit;color:var(--ink-soft);position:relative;overflow:hidden;isolation:isolate}
+    .tab .btn__ripple{background:rgba(14,92,74,.16)}
+    .tab.is-active .btn__ripple{background:rgba(255,255,255,.35)}
+    .tab.is-active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+    .story{background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:16px;transition:.25s}
+    .story:hover{box-shadow:0 10px 30px -10px rgba(0,0,0,.1)}
+    .story.is-pending{border-left:4px solid var(--accent)}
+    .story.is-approved{border-left:4px solid var(--ok)}
+    .story__head{display:flex;justify-content:space-between;align-items:start;gap:16px;margin-bottom:10px;flex-wrap:wrap}
+    .story__name{font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem}
+    .story__meta{font-size:.78rem;color:var(--ink-soft);display:flex;gap:12px;flex-wrap:wrap}
+    .badge{font-size:.7rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:4px 10px;border-radius:99px}
+    .badge--pending{background:#fef3c7;color:#92400e}
+    .badge--approved{background:#dcfce7;color:#166534}
+    .story__text{color:var(--ink-soft);font-size:.95rem;margin:12px 0 16px;white-space:pre-wrap}
+    .story__actions{display:flex;gap:10px;flex-wrap:wrap}
+    .empty{text-align:center;padding:60px 20px;color:var(--ink-soft)}
+
+    .place-form{
+      background:#fff;
+      padding:24px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      margin-bottom:24px;
+    }
+    .place-form h3{
+      font-family:'Fraunces',serif;
+      font-size:1.2rem;
+      margin-bottom:16px;
+    }
+    .place-form .field{margin-bottom:16px}
+    .place-form label{
+      display:block;
+      font-size:.85rem;
+      font-weight:600;
+      margin-bottom:6px;
+    }
+    .place-form input[type="text"],
+    .place-form input[type="number"],
+    .place-form select,
+    .place-form textarea{
+      width:100%;
+      padding:10px 14px;
+      border:1.5px solid var(--line);
+      border-radius:10px;
+      font-family:inherit;
+      font-size:.95rem;
+      background:#faf7f2;
+      transition:.25s;
+    }
+    .place-form input:focus,
+    .place-form select:focus,
+    .place-form textarea:focus{
+      outline:none;
+      border-color:var(--brand);
+      background:#fff;
+      box-shadow:0 0 0 4px rgba(14,92,74,.1);
+    }
+    .place-form textarea{resize:vertical}
+
+    #placeMap{
+      height:320px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      overflow:hidden;
+    }
+    .coords-display{
+      display:flex;
+      gap:16px;
+      margin-top:10px;
+      font-size:.85rem;
+      color:var(--ink-soft);
+      flex-wrap:wrap;
+    }
+    .coords-display strong{
+      color:var(--brand);
+      font-family:'Fraunces',serif;
+    }
+
+    .place-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:20px;
+      margin-bottom:12px;
+      display:flex;
+      gap:16px;
+      align-items:center;
+    }
+    .place-card__img{
+      width:80px;height:80px;
+      border-radius:12px;
+      background-size:cover;
+      background-position:center;
+      background-color:#f1ece3;
+      flex-shrink:0;
+    }
+    .place-card__info{flex:1}
+    .place-card__name{
+      font-family:'Fraunces',serif;
+      font-weight:700;
+      font-size:1.1rem;
+    }
+    .place-card__meta{
+      font-size:.82rem;
+      color:var(--ink-soft);
+      margin-top:4px;
+    }
+
+    .user-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:20px;
+      margin-bottom:12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+    .user-card__email{
+      font-family:'Fraunces',serif;
+      font-weight:700;
+      font-size:1.05rem;
+      word-break:break-all;
+    }
+    .user-card__meta{
+      font-size:.82rem;
+      color:var(--ink-soft);
+      margin-top:4px;
+    }
+    .user-card__stats{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .user-card__stats span{
+      font-size:.78rem;
+      font-weight:600;
+      padding:4px 12px;
+      border-radius:99px;
+      background:#f1ece3;
+      color:var(--ink-soft);
+      white-space:nowrap;
+    }
+
+    @media(max-width:600px){
+      .top{flex-direction:column;align-items:start}
+      .place-card{flex-direction:column;align-items:start}
+    }
+  </style>
+</head>
+<body>
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- LOGIN -->
+  <div id="loginScreen">
+    <div class="container">
+      <div class="login">
+        <h1>Admin kirish</h1>
+        <input type="password" id="password" placeholder="Admin paroli" autocomplete="current-password" />
+        <button class="btn btn--primary" style="width:100%" id="loginBtn">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
+          Kirish
+        </button>
+        <div class="err" id="loginErr"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL -->
+  <div id="panelScreen" hidden>
+    <div class="container">
+      <div class="top">
+        <div>
+          <h1>Boshqaruv paneli</h1>
+          <p>Hikoyalar va joylarni boshqaring.</p>
+        </div>
+        <div style="display:flex;gap:10px">
+          <a href="/" class="btn btn--ghost">Saytga qaytish</a>
+          <button class="btn btn--ghost" id="logoutBtn">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+            Chiqish
+          </button>
+        </div>
+      </div>
+
+      <!-- ASOSIY TAB'LAR -->
+      <div class="tabs" id="mainTabs">
+        <button class="tab is-active" data-main="stories">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
+          Hikoyalar
+        </button>
+        <button class="tab" data-main="places">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/></svg>
+          Joylar
+        </button>
+        <button class="tab" data-main="users">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+          Foydalanuvchilar
+        </button>
+      </div>
+
+      <!-- HIKOYALAR BO'LIMI -->
+      <div id="storiesSection">
+        <div class="stats">
+          <div class="stat"><strong id="stTotal">0</strong><span>Jami hikoyalar</span></div>
+          <div class="stat"><strong id="stPending">0</strong><span>Kutilmoqda</span></div>
+          <div class="stat"><strong id="stApproved">0</strong><span>Tasdiqlangan</span></div>
+        </div>
+
+        <div class="tabs">
+          <button class="tab is-active" data-tab="pending">Kutilmoqda</button>
+          <button class="tab" data-tab="approved">Tasdiqlangan</button>
+          <button class="tab" data-tab="all">Barchasi</button>
+        </div>
+
+        <div id="list"></div>
+      </div>
+
+      <!-- JOYLAR BO'LIMI -->
+      <div id="placesSection" hidden>
+        <div class="tabs">
+          <button class="tab is-active" data-placetab="list">Barcha joylar</button>
+          <button class="tab" data-placetab="add">➕ Yangi joy qo'shish</button>
+        </div>
+
+        <div id="placesList"></div>
+
+        <form id="placeForm" class="place-form" hidden>
+          <h3>Yangi joy qo'shish</h3>
+
+          <div class="field">
+            <label>Nom *</label>
+            <input type="text" name="nom" placeholder="Masalan: Yangi maktab" required />
+          </div>
+
+          <div class="field">
+            <label>Tur *</label>
+            <select name="turi" id="turiSelect" required>
+              <option value="">Tanlang...</option>
+              <option value="ilm">Ilm maskani</option>
+              <option value="ibodat">Ibodat</option>
+              <option value="tibbiyot">Tibbiyot</option>
+              <option value="dam">Dam olish</option>
+              <option value="savdo">Savdo</option>
+              <option value="tabiat">Tabiat</option>
+              <option value="hokimiyat">Hokimiyat</option>
+              <option value="__other__">➕ Boshqa tur (o'zingiz yozing)</option>
+            </select>
+          </div>
+
+          <div class="field" id="customTypeField" style="display:none">
+            <label>Yangi tur nomi *</label>
+            <input type="text" name="turiCustom" id="turiCustomInput" placeholder="Masalan: Madaniyat, Sport, Xizmat..." />
+            <p style="font-size:.78rem;color:var(--ink-soft);margin-top:6px">
+              Bu tur saytda filtr sifatida paydo bo'ladi
+            </p>
+          </div>
+
+          <div class="field">
+            <label>Tavsif</label>
+            <textarea name="tavsif" rows="3" placeholder="Qisqa tavsif (1-2 gap)"></textarea>
+          </div>
+
+          <div class="field">
+            <label>Manzil (ixtiyoriy)</label>
+            <input type="text" name="manzil" placeholder="Ko'cha, uy raqami" />
+          </div>
+
+          <div class="field">
+            <label>📍 Joylashuvni xaritadan tanlang *</label>
+            <p style="font-size:.82rem;color:var(--ink-soft);margin-bottom:8px">
+              Xaritani bosing yoki markerni sudrab tashlang
+            </p>
+            <div id="placeMap"></div>
+            <div class="coords-display">
+              <span>Kenglik: <strong id="latDisplay">39.6485</strong></span>
+              <span>Uzunlik: <strong id="lngDisplay">65.9761</strong></span>
+            </div>
+            <input type="hidden" name="lat" id="latInput" value="39.6485" />
+            <input type="hidden" name="lng" id="lngInput" value="65.9761" />
+          </div>
+
+          <div class="field">
+            <label>Rasm (ixtiyoriy)</label>
+            <input type="file" name="rasm" accept="image/*" />
+          </div>
+
+          <button type="submit" class="btn btn--ok" style="width:100%">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+            Joyni qo'shish
+          </button>
+        </form>
+      </div>
+
+      <!-- FOYDALANUVCHILAR BO'LIMI -->
+      <div id="usersSection" hidden>
+        <div class="stats">
+          <div class="stat"><strong id="uTotal">0</strong><span>Jami foydalanuvchilar</span></div>
+        </div>
+        <div id="usersList"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Google Maps API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB8CEr8PX1Q5QF5QM30gCUYB5gflX95ZuQ&libraries=places"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
